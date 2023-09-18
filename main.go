@@ -9,7 +9,6 @@ import (
 	"raytracer/utils"
 
 	"github.com/schollz/progressbar/v3"
-	// "raytracer/camera"
 )
 
 
@@ -23,8 +22,8 @@ func main() {
 
 	// Create world
 	world := geometry.HittableList{}
-	world.Add(geometry.Sphere{geometry.Vec3{0,      0, -1}, 0.5})
-	world.Add(geometry.Sphere{geometry.Vec3{0, -100.5, -1}, 100})
+	world.Add(geometry.Sphere{Center: geometry.Vec3{0,      0, -1}, Radius: 0.5})
+	world.Add(geometry.Sphere{Center: geometry.Vec3{0, -100.5, -1}, Radius: 100})
 
 	// Camera settings
 	focal_length := 1.0
@@ -64,7 +63,7 @@ func main() {
 			ray_vec := pixel_center.Sub(camera_center)
 
 			// Calculate ray color
-			ray := geometry.Ray{camera_center, ray_vec}
+			ray := geometry.Ray{Orig: camera_center, Dir: ray_vec}
 			color := RayColor(ray, world)
 
 			// Write color to pixel
@@ -81,7 +80,7 @@ func main() {
 func RayColor(ray geometry.Ray, world geometry.HittableList) color.RGBA {
 	record := geometry.HitRecord{}
 
-	if world.Hit(ray, geometry.Interval{0, 999999}, &record) {
+	if world.Hit(ray, geometry.Interval{Min: 0, Max: 999999}, &record) {
 		return color.RGBA{
 			uint8(255 / 2 * (record.Normal[0] + 1)),
 			uint8(255 / 2 * (record.Normal[1] + 1)),

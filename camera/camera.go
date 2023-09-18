@@ -18,21 +18,10 @@ type Camera struct {
 }
 
 
-// func (camera *Camera) Initialize() {
-// 	
-// }
-
-
-// func (camera Camera) Render(world geometry.Hittable) *image.RGBA {
-// 	
-// 	return img
-// }
-
-
 func (camera Camera) RayColor(ray geometry.Ray, world geometry.Hittable) color.RGBA {
 	record := geometry.HitRecord{}
 
-	if world.Hit(ray, geometry.Interval{0, 999999}, &record) {
+	if world.Hit(ray, geometry.Interval{Min: 0, Max: 999999}, &record) {
 		return color.RGBA{
 			uint8(255 / 2 * (record.Normal[0] + 1)),
 			uint8(255 / 2 * (record.Normal[1] + 1)),

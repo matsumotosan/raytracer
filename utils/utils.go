@@ -13,6 +13,11 @@ func SaveImage(filename string, img image.Image) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	png.Encode(f, img)
+
+	err = png.Encode(f, img)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	f.Close()
 }
