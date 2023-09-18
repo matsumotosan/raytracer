@@ -21,7 +21,7 @@ func main() {
 	image_height := int(float64(image_width) / aspect_ratio)
 
 	// Create world
-	world := geometry.HittableList{}
+	world := geometry.World{}
 	world.Add(geometry.Sphere{Center: geometry.Vec3{0,      0, -1}, Radius: 0.5})
 	world.Add(geometry.Sphere{Center: geometry.Vec3{0, -100.5, -1}, Radius: 100})
 
@@ -77,7 +77,7 @@ func main() {
 }
 
 
-func RayColor(ray geometry.Ray, world geometry.HittableList) color.RGBA {
+func RayColor(ray geometry.Ray, world geometry.World) color.RGBA {
 	record := geometry.HitRecord{}
 
 	if world.Hit(ray, geometry.Interval{Min: 0, Max: 999999}, &record) {

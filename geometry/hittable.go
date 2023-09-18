@@ -17,15 +17,15 @@ func (hr *HitRecord) SetFaceNormal(ray Ray, outward_normal Vec3) {
 	}
 }
 
-type Hittable interface { Hit(ray Ray, interval Interval, record *HitRecord) bool }
+type Object interface { Hit(ray Ray, interval Interval, record *HitRecord) bool }
 
-type HittableList struct { Objects []Hittable }
+type World struct { Objects []Object }
 
-func (hl *HittableList) Clear() { hl.Objects = []Hittable{} }
+func (hl *World) Clear() { hl.Objects = []Object{} }
 
-func (hl *HittableList) Add(h Hittable) { hl.Objects = append(hl.Objects, h) }
+func (hl *World) Add(h Object) { hl.Objects = append(hl.Objects, h) }
 
-func (hl *HittableList) Hit(ray Ray, ray_t Interval, record *HitRecord) bool {
+func (hl *World) Hit(ray Ray, ray_t Interval, record *HitRecord) bool {
 	temp_rec := HitRecord{}
 	hit := false
 	closest := ray_t.Max
