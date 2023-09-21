@@ -1,6 +1,7 @@
 package camera
 
 import (
+	"image"
 	"image/color"
 
 	"raytracer/geometry"
@@ -18,7 +19,39 @@ type Camera struct {
 }
 
 
-func (camera Camera) RayColor(ray geometry.Ray, world geometry.Hittable) color.RGBA {
+func (cam *Camera) Initialize() {
+	cam.ImageHeight = int(float64(cam.ImageWidth) / cam.AspectRatio)
+
+	// Additional camera settings
+	focal_length := 1.0
+	viewport_height := 2.0
+	viewport_width := viewport_height * float64(cam.ImageWidth) / float64(cam.ImageHeight)
+
+	// Calculate total width and height of viewport
+	viewport_u := geometry.Vec3{viewport_width, 0, 0}
+	viewport_v := geometry.Vec3{0, -viewport_height, 0}
+
+	// Calculate displacement size for horizontal and vertical vectors
+	cam.Pixel_delta_u = viewport_u.DivS(float64(cam.ImageWidth))
+	cam.Pixel_delta_v = viewport_v.DivS(float64(cam.ImageHeight))
+
+	// Caluclate position of top left corner
+	viewport_upper_left := cam.Center.Sub(geometry.Vec3{0, 0, focal_length})
+	viewport_upper_left = viewport_upper_left.Sub(viewport_u.DivS(2))
+	viewport_upper_left = viewport_upper_left.Sub(viewport_v.DivS(2))
+
+	// Calculate center of upper left pixel
+	cam.Pixel_00_loc = viewport_upper_left
+	cam.Pixel_00_loc = cam.Pixel_00_loc.Add(cam.Pixel_delta_u.MulS(0.5))
+	cam.Pixel_00_loc = cam.Pixel_00_loc.Add(cam.Pixel_delta_v.MulS(0.5))
+}
+
+
+// func (cam *Camera) Render(world *geometry.World) image.Image {
+// }
+
+
+func (cam *Camera) RayColor(ray geometry.Ray, world geometry.World) color.RGBA {
 	record := geometry.HitRecord{}
 
 	if world.Hit(ray, geometry.Interval{Min: 0, Max: 999999}, &record) {
