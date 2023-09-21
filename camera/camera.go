@@ -5,6 +5,7 @@ import (
 	"image/color"
 
 	"raytracer/geometry"
+	"github.com/schollz/progressbar/v3"
 )
 
 
@@ -47,11 +48,35 @@ func (cam *Camera) Initialize() {
 }
 
 
-// func (cam *Camera) Render(world *geometry.World) image.Image {
-// }
+func (cam *Camera) Render(world *geometry.World) image.Image {
+	img := image.NewRGBA(image.Rect(0, 0, cam.ImageWidth, cam.ImageWidth))
+	bar := progressbar.NewOptions(cam.ImageWidth * cam.ImageHeight)
+
+	for i := 0; i < cam.ImageWidth; i++ {
+		for j := 0; j < cam.ImageHeight; j++ {
+
+			// Calculate next pixel center
+			pixel_center := cam.Pixel_00_loc.Add(cam.Pixel_delta_u.MulS(float64(i)))
+			pixel_center = pixel_center.Add(cam.Pixel_delta_v.MulS(float64(j)))
+
+			// Calculate ray to pixel center
+			ray_vec := pixel_center.Sub(cam.Center)
+
+			// Calculate ray color
+			ray := geometry.Ray{Orig: cam.Center, Dir: ray_vec}
+			color := cam.RayColor(ray, world)
+
+			// Write color to pixel
+			img.Set(i, j, color)
+
+			bar.Add(1)
+		}
+	}
+	return img
+}
 
 
-func (cam *Camera) RayColor(ray geometry.Ray, world geometry.World) color.RGBA {
+func (cam *Camera) RayColor(ray geometry.Ray, world *geometry.World) color.RGBA {
 	record := geometry.HitRecord{}
 
 	if world.Hit(ray, geometry.Interval{Min: 0, Max: 999999}, &record) {
