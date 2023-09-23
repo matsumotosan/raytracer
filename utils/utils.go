@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/png"
 	"log"
+	"math/rand"
 	"os"
 )
 
@@ -20,4 +21,9 @@ func SaveImage(filename string, img image.Image) {
 	}
 
 	f.Close()
+}
+
+
+func RandInterval(min, max float64) float64 {
+	return min + (max - min) * rand.Float64()
 }

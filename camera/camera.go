@@ -1,10 +1,13 @@
 package camera
 
 import (
+	// "fmt"
 	"image"
 	"image/color"
+	"math/rand"
 
 	"raytracer/geometry"
+
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -17,6 +20,7 @@ type Camera struct {
 	Pixel_00_loc geometry.Vec3
 	Pixel_delta_u geometry.Vec3
 	Pixel_delta_v geometry.Vec3
+	SamplesPerPixel int
 }
 
 
@@ -51,6 +55,7 @@ func (cam *Camera) Initialize() {
 func (cam *Camera) Render(world *geometry.World) image.Image {
 	img := image.NewRGBA(image.Rect(0, 0, cam.ImageWidth, cam.ImageWidth))
 	bar := progressbar.NewOptions(cam.ImageWidth * cam.ImageHeight)
+	interval := geometry.Interval{Min: 0, Max: 0.99999}
 
 	for i := 0; i < cam.ImageWidth; i++ {
 		for j := 0; j < cam.ImageHeight; j++ {
@@ -59,16 +64,23 @@ func (cam *Camera) Render(world *geometry.World) image.Image {
 			pixel_center := cam.Pixel_00_loc.Add(cam.Pixel_delta_u.MulS(float64(i)))
 			pixel_center = pixel_center.Add(cam.Pixel_delta_v.MulS(float64(j)))
 
-			// Calculate ray to pixel center
-			ray_vec := pixel_center.Sub(cam.Center)
+			// Sample ray color
+			c := geometry.Vec3{}
+			for k := 0; k < cam.SamplesPerPixel; k++ {
+				ray := cam.sampleRay(i, j)
+				c = c.Add(cam.rayColor(ray, world))
+			}
 
-			// Calculate ray color
-			ray := geometry.Ray{Orig: cam.Center, Dir: ray_vec}
-			color := cam.RayColor(ray, world)
+			// Normalize for samples per pixel 
+			c = c.DivS(float64(cam.SamplesPerPixel))
+			rgba := color.RGBA{
+				uint8(255 * interval.Clamp(c[0])),
+				uint8(255 * interval.Clamp(c[1])),
+				uint8(255 * interval.Clamp(c[2])),
+				255,
+			}
 
-			// Write color to pixel
-			img.Set(i, j, color)
-
+			img.Set(i, j, rgba)
 			bar.Add(1)
 		}
 	}
@@ -76,15 +88,32 @@ func (cam *Camera) Render(world *geometry.World) image.Image {
 }
 
 
-func (cam *Camera) RayColor(ray geometry.Ray, world *geometry.World) color.RGBA {
+func (cam *Camera) sampleRay(i, j int) geometry.Ray {
+	pixel_center := cam.Pixel_00_loc
+	pixel_center = pixel_center.Add(cam.Pixel_delta_u.MulS(float64(i)))
+	pixel_center = pixel_center.Add(cam.Pixel_delta_v.MulS(float64(j)))
+
+	pixel_sample := pixel_center.Add(cam.samplePixel())
+
+	return geometry.Ray{Orig: cam.Center, Dir:pixel_sample.Sub(cam.Center)}
+}
+
+
+func (cam *Camera) samplePixel() geometry.Vec3 {
+	px := -0.5 + rand.Float64()
+	py := -0.5 + rand.Float64()
+	return cam.Pixel_delta_u.MulS(px).Add(cam.Pixel_delta_v.MulS(py))
+}
+
+
+func (cam *Camera) rayColor(ray geometry.Ray, world *geometry.World) geometry.Vec3 {
 	record := geometry.HitRecord{}
 
 	if world.Hit(ray, geometry.Interval{Min: 0, Max: 999999}, &record) {
-		return color.RGBA{
-			uint8(255 / 2 * (record.Normal[0] + 1)),
-			uint8(255 / 2 * (record.Normal[1] + 1)),
-			uint8(255 / 2 * (record.Normal[2] + 1)),
-			255,
+		return geometry.Vec3{
+			0.5 * (record.Normal[0] + 1),
+			0.5 * (record.Normal[1] + 1),
+			0.5 * (record.Normal[2] + 1),
 		}
 	}
 
@@ -93,10 +122,5 @@ func (cam *Camera) RayColor(ray geometry.Ray, world *geometry.World) color.RGBA 
 	c := geometry.Vec3{1.0, 1.0, 1.0}.MulS(1.0 - a)
 	c = c.Add(geometry.Vec3{0.5, 0.7, 1.0}.MulS(a))
 
-	return color.RGBA{
-		uint8(255 * c[0]),
-		uint8(255 * c[1]),
-		uint8(255 * c[2]),
-		255,
-	}
+	return geometry.Vec3{c[0], c[1], c[2]}
 }
