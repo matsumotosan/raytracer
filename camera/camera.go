@@ -118,7 +118,7 @@ func (cam *Camera) rayColor(ray geometry.Ray, depth int, world *geometry.World) 
 	}
 
 	if world.Hit(ray, geometry.Interval{Min: MIN_DIST, Max: MAX_DIST}, &record) {
-		direction := geometry.RandVecOnHemisphere(record.Normal)
+		direction := record.Normal.Add(geometry.RandUnitVec())
 		reflection := geometry.Ray{
 			Orig: record.Point,
 			Dir:  direction,
