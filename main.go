@@ -43,5 +43,5 @@ func main() {
 	})
 
 	img := cam.Render(&world)
-	utils.SaveImage("./test.png", img)
+	utils.SaveImage("./example.png", img)
 }
