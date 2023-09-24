@@ -1,7 +1,6 @@
 package camera
 
 import (
-	// "fmt"
 	"image"
 	"image/color"
 	"math/rand"
@@ -21,6 +20,7 @@ type Camera struct {
 	Pixel_delta_u geometry.Vec3
 	Pixel_delta_v geometry.Vec3
 	SamplesPerPixel int
+	MaxBounces int
 }
 
 
@@ -68,10 +68,10 @@ func (cam *Camera) Render(world *geometry.World) image.Image {
 			c := geometry.Vec3{}
 			for k := 0; k < cam.SamplesPerPixel; k++ {
 				ray := cam.sampleRay(i, j)
-				c = c.Add(cam.rayColor(ray, world))
+				c = c.Add(cam.rayColor(ray, cam.MaxBounces, world))
 			}
 
-			// Normalize for samples per pixel 
+			// Normalize for number of samples per pixel 
 			c = c.DivS(float64(cam.SamplesPerPixel))
 			rgba := color.RGBA{
 				uint8(255 * interval.Clamp(c[0])),
@@ -106,15 +106,24 @@ func (cam *Camera) samplePixel() geometry.Vec3 {
 }
 
 
-func (cam *Camera) rayColor(ray geometry.Ray, world *geometry.World) geometry.Vec3 {
+func (cam *Camera) rayColor(ray geometry.Ray, depth int, world *geometry.World) geometry.Vec3 {
 	record := geometry.HitRecord{}
 
+	if depth < 1 {
+		return geometry.Vec3{}
+	}
+
 	if world.Hit(ray, geometry.Interval{Min: 0, Max: 999999}, &record) {
-		return geometry.Vec3{
-			0.5 * (record.Normal[0] + 1),
-			0.5 * (record.Normal[1] + 1),
-			0.5 * (record.Normal[2] + 1),
+		direction := geometry.RandVecOnHemisphere(record.Normal)
+		reflection := geometry.Ray{
+			Orig: record.Point,
+			Dir:  direction,
 		}
+
+		c := cam.rayColor(reflection, depth - 1, world)
+
+		// Reflection retains half of color from a bounce
+		return geometry.Vec3{ 0.5 * c[0], 0.5 * c[1], 0.5 * c[2] }
 	}
 
 	unit_ray := ray.Dir.GetUnit()

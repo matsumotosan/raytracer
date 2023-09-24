@@ -16,7 +16,9 @@ func main() {
 		Center:          geometry.Vec3{0, 0, 0},
 		AspectRatio:     16.0 / 9.0,
 		ImageWidth:      400,
+		ImageHeight:     0,
 		SamplesPerPixel: 100,
+		MaxBounces:      10,
 	}
 
 	cam.Initialize()
