@@ -11,6 +11,10 @@ import (
 )
 
 
+const MIN_DIST = 0.001
+const MAX_DIST = 10000
+
+
 type Camera struct {
 	Center geometry.Vec3
 	AspectRatio float64
@@ -113,7 +117,7 @@ func (cam *Camera) rayColor(ray geometry.Ray, depth int, world *geometry.World) 
 		return geometry.Vec3{}
 	}
 
-	if world.Hit(ray, geometry.Interval{Min: 0, Max: 999999}, &record) {
+	if world.Hit(ray, geometry.Interval{Min: MIN_DIST, Max: MAX_DIST}, &record) {
 		direction := geometry.RandVecOnHemisphere(record.Normal)
 		reflection := geometry.Ray{
 			Orig: record.Point,
