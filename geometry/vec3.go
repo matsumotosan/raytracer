@@ -57,7 +57,7 @@ func (u Vec3) Norm() float64 {
 }
 
 // normalize vector
-func (u Vec3) GetUnit() Vec3 {
+func (u Vec3) Normalize() Vec3 {
 	return u.DivS(u.Norm())
 }
 
@@ -81,7 +81,7 @@ func RandVecInUnitSphere() Vec3 {
 }
 
 func RandUnitVec() Vec3 {
-	return RandVecInUnitSphere().GetUnit()
+	return RandVecInUnitSphere().Normalize()
 }
 
 func RandVecOnHemisphere(normal Vec3) Vec3 {
@@ -91,4 +91,12 @@ func RandVecOnHemisphere(normal Vec3) Vec3 {
 	} else {
 		return on_unit_sphere.MulS(-1)
 	}
+}
+
+func (u Vec3) NearZero(tol float64) bool {
+	return (math.Abs(u[0]) < tol) && (math.Abs(u[1]) < tol) && (math.Abs(u[2]) < tol)
+}
+
+func Reflect(u Vec3, n Vec3) Vec3 {
+	return u.Sub(n.MulS(2 * n.Dot(u)))
 }

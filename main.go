@@ -24,8 +24,23 @@ func main() {
 	cam.Initialize()
 
 	world := geometry.World{}
-	world.Add(geometry.Sphere{Center: geometry.Vec3{0,      0, -1}, Radius: 0.5})
-	world.Add(geometry.Sphere{Center: geometry.Vec3{0, -100.5, -1}, Radius: 100})
+	world.Add(geometry.Sphere{
+		Center: geometry.Vec3{0, 0, -1},
+		Radius: 0.5,
+		Material: &geometry.Lambertian { Albedo: geometry.Vec3{0.8, 0.6, 0.2} },
+	})
+
+	world.Add(geometry.Sphere{
+		Center: geometry.Vec3{-1, 0, -1},
+		Radius: 0.5,
+		Material: &geometry.Metal { Albedo: geometry.Vec3{0.8, 0.6, 0.2} },
+	})
+
+	world.Add(geometry.Sphere{
+		Center: geometry.Vec3{0, -100.5, -1},
+		Radius: 100,
+		Material: &geometry.Lambertian{ Albedo: geometry.Vec3{ 0.8, 0.8, 0.8} },
+	})
 
 	img := cam.Render(&world)
 	utils.SaveImage("./test.png", img)

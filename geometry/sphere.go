@@ -5,6 +5,7 @@ import "math"
 type Sphere struct {
 	Center Vec3
 	Radius float64
+	Material Material
 }
 
 func (s Sphere) Hit(ray Ray, ray_t Interval, record *HitRecord) bool {
@@ -31,6 +32,7 @@ func (s Sphere) Hit(ray Ray, ray_t Interval, record *HitRecord) bool {
 	record.Point = ray.At(record.T)
 	outward_normal := (record.Point.Sub(s.Center)).DivS(s.Radius)
 	record.SetFaceNormal(ray, outward_normal)
+	record.Material = s.Material
 
 	return true
 }

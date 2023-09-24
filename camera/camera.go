@@ -3,6 +3,7 @@ package camera
 import (
 	"image"
 	"image/color"
+	"math"
 	"math/rand"
 
 	"raytracer/geometry"
@@ -77,10 +78,11 @@ func (cam *Camera) Render(world *geometry.World) image.Image {
 
 			// Normalize for number of samples per pixel 
 			c = c.DivS(float64(cam.SamplesPerPixel))
+
 			rgba := color.RGBA{
-				uint8(255 * interval.Clamp(c[0])),
-				uint8(255 * interval.Clamp(c[1])),
-				uint8(255 * interval.Clamp(c[2])),
+				uint8(255 * interval.Clamp(math.Sqrt(c[0]))),
+				uint8(255 * interval.Clamp(math.Sqrt(c[1]))),
+				uint8(255 * interval.Clamp(math.Sqrt(c[2]))),
 				255,
 			}
 
@@ -118,19 +120,15 @@ func (cam *Camera) rayColor(ray geometry.Ray, depth int, world *geometry.World) 
 	}
 
 	if world.Hit(ray, geometry.Interval{Min: MIN_DIST, Max: MAX_DIST}, &record) {
-		direction := record.Normal.Add(geometry.RandUnitVec())
-		reflection := geometry.Ray{
-			Orig: record.Point,
-			Dir:  direction,
+		ray_scattered := geometry.Ray{}
+		attenuation := geometry.Vec3{}
+
+		if record.Material.Scatter(&ray, &record, &attenuation, &ray_scattered) {
+			return attenuation.Mul(cam.rayColor(ray_scattered, depth - 1, world))
 		}
-
-		c := cam.rayColor(reflection, depth - 1, world)
-
-		// Reflection retains half of color from a bounce
-		return geometry.Vec3{ 0.5 * c[0], 0.5 * c[1], 0.5 * c[2] }
 	}
 
-	unit_ray := ray.Dir.GetUnit()
+	unit_ray := ray.Dir.Normalize()
 	a := 0.5 * (unit_ray[1] + 1.0)
 	c := geometry.Vec3{1.0, 1.0, 1.0}.MulS(1.0 - a)
 	c = c.Add(geometry.Vec3{0.5, 0.7, 1.0}.MulS(a))
