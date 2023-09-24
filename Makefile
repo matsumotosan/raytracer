@@ -1,2 +1,2 @@
 make run:
-	go run main.go && open test.png
+	go run main.go && open example.png
