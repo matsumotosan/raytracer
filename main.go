@@ -24,22 +24,39 @@ func main() {
 	cam.Initialize()
 
 	world := geometry.World{}
+
+	// Hollow glass sphere
 	world.Add(geometry.Sphere{
-		Center: geometry.Vec3{0, 0, -1},
-		Radius: 0.5,
-		Material: &geometry.Lambertian { Albedo: geometry.Vec3{0.8, 0.6, 0.2} },
+		Center: geometry.Vec3{-1, 0, -1},
+		Radius: -0.4,
+		Material: &geometry.Dielectric { RefractiveIndex: 1.5 },
 	})
 
 	world.Add(geometry.Sphere{
 		Center: geometry.Vec3{-1, 0, -1},
 		Radius: 0.5,
-		Material: &geometry.Metal { Albedo: geometry.Vec3{0.8, 0.6, 0.2} },
+		Material: &geometry.Dielectric { RefractiveIndex: 1.5 },
 	})
 
+	// Matte
+	world.Add(geometry.Sphere{
+		Center: geometry.Vec3{ 0, 0, -1},
+		Radius: 0.5,
+		Material: &geometry.Lambertian { Albedo: geometry.Vec3{0.1, 0.2, 0.5}},
+	})
+
+	// Metallic
+	world.Add(geometry.Sphere{
+		Center: geometry.Vec3{ 1, 0, -1},
+		Radius: 0.5,
+		Material: &geometry.Metal { Albedo: geometry.Vec3{0.8, 0.6, 0.2}, Fuzz: 0.0},
+	})
+
+	// Matte world
 	world.Add(geometry.Sphere{
 		Center: geometry.Vec3{0, -100.5, -1},
 		Radius: 100,
-		Material: &geometry.Lambertian{ Albedo: geometry.Vec3{ 0.8, 0.8, 0.8} },
+		Material: &geometry.Lambertian{ Albedo: geometry.Vec3{ 0.8, 0.3, 0.2}},
 	})
 
 	img := cam.Render(&world)

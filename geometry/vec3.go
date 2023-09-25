@@ -97,6 +97,20 @@ func (u Vec3) NearZero(tol float64) bool {
 	return (math.Abs(u[0]) < tol) && (math.Abs(u[1]) < tol) && (math.Abs(u[2]) < tol)
 }
 
+
+// ray actions
 func Reflect(u Vec3, n Vec3) Vec3 {
 	return u.Sub(n.MulS(2 * n.Dot(u)))
+}
+
+func Refract(u Vec3, n Vec3, refractive_idx float64) Vec3 {
+	cos_theta := math.Min(-u.Dot(n), 1.0)
+	r_perp := (u.Add(n.MulS(cos_theta))).MulS(refractive_idx)
+	r_par := n.MulS(-math.Sqrt(math.Abs(1 - r_perp.Norm() * r_perp.Norm())))
+	return r_perp.Add(r_par)
+}
+
+func Reflectance(cosine float64, reflective_index float64) float64 {
+	r0 := math.Pow((1 - reflective_index) / (1 + reflective_index), 2)
+	return r0 + (1 - r0) * math.Pow(1 - cosine, 5)
 }
