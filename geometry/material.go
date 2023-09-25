@@ -7,14 +7,21 @@ import (
 
 const TOL = 1e-8
 
-
 type Material interface {
 	Scatter(ray_in *Ray, record *HitRecord, attenuation *Vec3, ray_scattered *Ray) bool 
 }
 
-
 type Lambertian struct {
 	Albedo Vec3
+}
+
+type Metal struct {
+	Albedo Vec3
+	Fuzz float64
+}
+
+type Dielectric struct {
+	RefractiveIndex float64
 }
 
 func (lam *Lambertian) Scatter(ray_in *Ray, record *HitRecord, attenuation *Vec3, ray_scattered *Ray) bool {
@@ -28,22 +35,11 @@ func (lam *Lambertian) Scatter(ray_in *Ray, record *HitRecord, attenuation *Vec3
 	return true
 }
 
-
-type Metal struct {
-	Albedo Vec3
-	Fuzz float64
-}
-
 func (metal *Metal) Scatter(ray_in *Ray, record *HitRecord, attenuation *Vec3, ray_scattered *Ray) bool {
 	reflected_dir := Reflect(ray_in.Dir.Normalize(), record.Normal)
 	*ray_scattered = Ray{record.Point, reflected_dir.Add(RandUnitVec().MulS(metal.Fuzz))}
 	*attenuation = metal.Albedo
 	return true
-}
-
-
-type Dielectric struct {
-	RefractiveIndex float64
 }
 
 func (dielectric *Dielectric) Scatter(ray_in *Ray, record *HitRecord, attenuation *Vec3, ray_scattered *Ray) bool {

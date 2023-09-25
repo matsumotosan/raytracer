@@ -7,7 +7,6 @@ import (
 
 type Vec3 [3]float64
 
-
 // vector-vector ops
 func (u Vec3) Add(v Vec3) Vec3 {
 	return Vec3{ u[0] + v[0], u[1] + v[1], u[2] + v[2] }
@@ -32,7 +31,6 @@ func (u Vec3) Dot(v Vec3) float64 {
 func (u Vec3) Cross(v Vec3) Vec3 {
 	return Vec3{ u[0] + v[0], u[1] + v[1], u[2] + v[2] }
 }
-
 
 // vector-scalar ops
 func (u Vec3) AddS(s float64) Vec3 {
@@ -60,7 +58,6 @@ func (u Vec3) Norm() float64 {
 func (u Vec3) Normalize() Vec3 {
 	return u.DivS(u.Norm())
 }
-
 
 // random vectors
 func RandVec(min, max float64) Vec3 {
@@ -96,7 +93,6 @@ func RandVecOnHemisphere(normal Vec3) Vec3 {
 func (u Vec3) NearZero(tol float64) bool {
 	return (math.Abs(u[0]) < tol) && (math.Abs(u[1]) < tol) && (math.Abs(u[2]) < tol)
 }
-
 
 // ray actions
 func Reflect(u Vec3, n Vec3) Vec3 {

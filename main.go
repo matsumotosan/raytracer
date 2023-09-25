@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-
 	"raytracer/camera"
 	"raytracer/geometry"
 	"raytracer/utils"
 )
-
 
 func main() {
 	fmt.Println("Raytracing in Go")

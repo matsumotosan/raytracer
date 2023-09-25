@@ -5,16 +5,12 @@ import (
 	"image/color"
 	"math"
 	"math/rand"
-
 	"raytracer/geometry"
-
 	"github.com/schollz/progressbar/v3"
 )
 
-
 const MIN_DIST = 0.001
 const MAX_DIST = 10000
-
 
 type Camera struct {
 	Center geometry.Vec3
@@ -27,7 +23,6 @@ type Camera struct {
 	SamplesPerPixel int
 	MaxBounces int
 }
-
 
 func (cam *Camera) Initialize() {
 	cam.ImageHeight = int(float64(cam.ImageWidth) / cam.AspectRatio)
@@ -55,7 +50,6 @@ func (cam *Camera) Initialize() {
 	cam.Pixel_00_loc = cam.Pixel_00_loc.Add(cam.Pixel_delta_u.MulS(0.5))
 	cam.Pixel_00_loc = cam.Pixel_00_loc.Add(cam.Pixel_delta_v.MulS(0.5))
 }
-
 
 func (cam *Camera) Render(world *geometry.World) image.Image {
 	img := image.NewRGBA(image.Rect(0, 0, cam.ImageWidth, cam.ImageWidth))
@@ -93,7 +87,6 @@ func (cam *Camera) Render(world *geometry.World) image.Image {
 	return img
 }
 
-
 func (cam *Camera) sampleRay(i, j int) geometry.Ray {
 	pixel_center := cam.Pixel_00_loc
 	pixel_center = pixel_center.Add(cam.Pixel_delta_u.MulS(float64(i)))
@@ -104,13 +97,11 @@ func (cam *Camera) sampleRay(i, j int) geometry.Ray {
 	return geometry.Ray{Orig: cam.Center, Dir:pixel_sample.Sub(cam.Center)}
 }
 
-
 func (cam *Camera) samplePixel() geometry.Vec3 {
 	px := -0.5 + rand.Float64()
 	py := -0.5 + rand.Float64()
 	return cam.Pixel_delta_u.MulS(px).Add(cam.Pixel_delta_v.MulS(py))
 }
-
 
 func (cam *Camera) rayColor(ray geometry.Ray, depth int, world *geometry.World) geometry.Vec3 {
 	record := geometry.HitRecord{}

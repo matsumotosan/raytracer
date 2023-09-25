@@ -1,6 +1,5 @@
 package geometry
 
-
 type HitRecord struct {
 	Point Vec3
 	Normal Vec3
@@ -17,7 +16,6 @@ func (hr *HitRecord) SetFaceNormal(ray Ray, outward_normal Vec3) {
 		hr.Normal = outward_normal.MulS(-1)
 	}
 }
-
 
 type Object interface {
 	Hit(ray Ray, interval Interval, record *HitRecord) bool
