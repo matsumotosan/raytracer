@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"raytracer/geometry"
+
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -22,6 +23,7 @@ type Camera struct {
 	Pixel_delta_v geometry.Vec3
 	SamplesPerPixel int
 	MaxBounces int
+	FieldOfView float64
 }
 
 func (cam *Camera) Initialize() {
@@ -29,7 +31,9 @@ func (cam *Camera) Initialize() {
 
 	// Additional camera settings
 	focal_length := 1.0
-	viewport_height := 2.0
+	theta := (cam.FieldOfView / 180) * math.Pi
+	h := math.Tan(theta / 2)
+	viewport_height := 2 * h * focal_length
 	viewport_width := viewport_height * float64(cam.ImageWidth) / float64(cam.ImageHeight)
 
 	// Calculate total width and height of viewport
